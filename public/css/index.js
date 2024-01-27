@@ -47,7 +47,7 @@ const saveNote = (note) =>
         body: JSON.stringify(note),
     });
 
-const deleteNote = (note) => 
+const deleteNote = (id) => 
 fetch(`api/notes/${id}`, {
     method: 'DELETE',
     headers:{
@@ -56,7 +56,7 @@ fetch(`api/notes/${id}`, {
     },
 });
 
-const renderActiveNotes = () => {
+const renderActiveNote = () => {
     // this function control the visibility of the button based on the state of the active note
     hide(saveNoteBtn); // hide Save Button
 // if active code has an id 
@@ -80,8 +80,53 @@ const handleNoteSave = () => {
     };
     saveNote(newNote).then(() => {
         getAndRenderNotes();
-        renderActiveNotes();
+        renderActiveNote();
     });
 };
 
+// Delete the clicked note
+const handleNoteDelete = (e) => {
+    e.stopPropagation();
 
+    const note = e.target;
+    const noteId = JSON.parse(note.parentElement.getAttribute('data-note'));
+    if (activeNote.id === noteId) {
+        activeNote = {};
+    }
+
+    deleteNote(noteId).then(() => {
+        getAndRenderNotes();
+        renderActiveNote();
+    });
+};
+
+const handleNoteView = (e) => {
+e.preventDefault();
+activeNote = JSON.parse(e.target.parentElement.getAttribute('data-note'));
+renderActiveNote();
+};
+
+const handleRenderDaveBtn = () => {
+    if (!noteTitle.value.trim() || !noteText.value.trim()) {
+        hide(saveNoteBtn);
+    } else {
+        show(saveNoteBtn);
+    }
+};
+
+const renderNoteList = async (notes) => {
+    let jsonNotes = await notes.json();
+    if (window.location.pathname === '/note') {
+        noteList.forEach((el) => (el.innerHTML = ''));
+    }
+}
+
+let noteListItems = [];
+
+const createLi = (text, delBtn = true) => {
+    const liEl = document.createElement('li');
+    liEl.classList.add('list-group-items');
+
+    const spanEl = document.createElement('span');
+    spanEl.classList.add('list-group-items');
+}
