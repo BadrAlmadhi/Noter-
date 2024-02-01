@@ -1,7 +1,13 @@
 const express = require('express');
-const notes = require('../routes/notes');
+const noteRouter = require('./notes');
+
 
 const app = express();
-app.use('/notes', notes);
+
+app.use('/notes', noteRouter);
+
+app.use((req,res) => {
+    res.status(404).send("Router Not Found");
+});
 
 module.exports = app;
