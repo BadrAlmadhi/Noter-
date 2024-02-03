@@ -1,28 +1,28 @@
-const notes = require('express').Router();
-const fs = require('fs')
-const path = require('path');
-// const db = require('../db/db.json');
+const notes = require("express").Router();
+const {
+  readFromFile,
+  writeToFile,
+  readAndAppend,
+} = require("../helper/fsUtils");
+const uuid = require("../helper/uuid");
 
-notes.get('/api/notes', async (req,res) => {
-    try {
-        const filePath = path.join(__dirname, "data.json");
-        const data = await fs.readFile(filePath, "utf8");
-        const jsonData = JSON.parse(data);
-        
-        const userId = parseInt(req.params.userId);
-        const user = jsonData.users.find(user => user.id === userId);
-    
-        if (user) {
-          res.json(user);
-        } else {
-          res.status(404).send("User not found");
-        }
-      } catch (error) {
-        console.error("Error reading JSON file:", error);
-        res.status(500).send("Internal Server Error");
-      }
+notes.get("/", (req, res) => {
+  readFromFile("../db/db.json").then((data) => res.json(JSON.parse(data)));
 });
 
+notes.post("/", (req, res) => {
+  const { title, text } = req.body;
+  if (req.body) {
+    const newNote = {
+        title,
+        text,
+        note_id: uuid(),
+    };
+    readAndAppend(newNote, '../db/db.json');
+    res.json('Note added successfully');
+  } else {
+    res.errored('Error adding note')
+  }
+});
 
 module.exports = notes;
-
